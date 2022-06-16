@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js" defer></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="backdrop"></div>
+    <span class="modal"></span>
+    <h1>Student Form</h1>
+    <form>
+      <section>
+        <div>
+          <label for="name">Name:</label>
+          <input type="text" name="name" id="name" />
+        </div>
+        <div>
+          <label for="surname">Surname:</label>
+          <input type="text" name="surname" id="surname" />
+        </div>
+        <div>
+          <label for="age">Age:</label>
+          <input type="number" name="age" id="age" />
+        </div>
+      </section>
+
+      <section>
+        <div>
+          <label for="phone">Phone number:</label>
+          <input type="number" name="phone" id="phone" />
+        </div>
+        <div>
+          <label for="email">E-mail:</label>
+          <input type="email" name="email" id="email" />
+        </div>
+      </section>
+      <section>
+        <div>
+          <label for="level">IT knowledge level: <span id="level-value">1</span></label>
+          <input type="range" name="level" id="level" min="1" max="10" value="1" />
+        </div>
+      </section>
+      <section id="group-section">
+        <div id="group-div">
+          <div>Pick a Group:</div>
+          <div id="div-radio"></div>
+        </div>
+      </section>
+      <section>
+        <div>
+          <fieldset>
+            <legend>Programming languages you want to study:</legend>
+            <div class="div-checkbox">
+              <input type="checkbox" name="javascript" id="javascript" value="JavaScript" />
+              <label for="javascript">JavaScript</label>
+            </div>
+            <div class="div-checkbox">
+              <input type="checkbox" name="python" id="python" value="Python" />
+              <label for="python">Python</label>
+            </div>
+            <div class="div-checkbox">
+              <input type="checkbox" name="java" id="java" value="Java" />
+              <label for="java">Java</label>
+            </div>
+            <div class="div-checkbox">
+              <input type="checkbox" name="csharp" id="csharp" value="C#" />
+              <label for="csharp">C#</label>
+            </div>
+          </fieldset>
+        </div>
+      </section>
+      <button>Submit</button>
+    </form>
+    <div id="student-list"></div>
+  </body>
+</html>

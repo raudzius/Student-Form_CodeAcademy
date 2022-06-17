@@ -97,56 +97,66 @@ function addStudent(name, surname, age, phone, email, level, group, ...languages
   divStudentList.prepend(div);
 }
 
-function displayInvalidInput() {}
-
 // Range input
 inputLevel.addEventListener('input', event => {
   levelLabelInput.textContent = event.target.value;
 });
 
-// Form submit
-form.addEventListener('submit', event => {
-  event.preventDefault();
-  const form = event.target;
+let isValid = true;
 
-  const requiredInputs = Array.from(document.querySelectorAll('.required'));
-  requiredInputs.forEach(input => {
+// Input validation
+function getInvalidInputs() {
+  document.querySelectorAll('.required').forEach(input => {
     input.style.borderColor = 'rgb(152, 159, 184)';
-    const oldSpan = input.parentElement.querySelector('span');
-    oldSpan && oldSpan.remove();
   });
-  const emptyInputs = requiredInputs.filter(input => input.value.trim().length === 0);
-  if (emptyInputs.length !== 0) {
-    displayModal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
+  document.querySelectorAll('.invalid').forEach(span => span.remove());
+
+  const requiredInputs = [...document.querySelectorAll('.required')];
+  const emptyInputs = requiredInputs.filter(input => !input.value.trim().length);
+
+  if (emptyInputs.length) {
     emptyInputs.forEach(input => {
       const span = document.createElement('span');
       input.style.borderColor = 'red';
       span.textContent = 'Sis laukelis yra privalomas';
       span.style.color = 'red';
-      span.className = 'error';
+      span.className = 'invalid';
       input.before(span);
     });
+    displayModal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
+    isValid = false;
+  }
+}
+
+// Form submit
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  const form = event.target;
+  const formEl = form.elements;
+
+  getInvalidInputs();
+
+  if (!isValid) {
+    isValid = true;
     return;
   }
 
-  const inputs = form.elements;
-
-  const name = inputs.name.value;
-  const surname = inputs.surname.value;
-  const age = inputs.age.value;
-  const phone = inputs.phone.value;
-  const email = inputs.email.value;
-  const level = inputs.level.value;
-  const group = inputs.gr.value;
-  const javascript = inputs.javascript.checked ? inputs.javascript.value : '';
-  const python = inputs.python.checked ? inputs.python.value : '';
-  const java = inputs.java.checked ? inputs.java.value : '';
-  const csharp = inputs.csharp.checked ? inputs.csharp.value : '';
+  const name = formEl.name.value;
+  const surname = formEl.surname.value;
+  const age = formEl.age.value;
+  const phone = formEl.phone.value;
+  const email = formEl.email.value;
+  const level = formEl.level.value;
+  const group = formEl.gr.value;
+  const javascript = formEl.javascript.checked ? formEl.javascript.value : '';
+  const python = formEl.python.checked ? formEl.python.value : '';
+  const java = formEl.java.checked ? formEl.java.value : '';
+  const csharp = formEl.csharp.checked ? formEl.csharp.value : '';
 
   addStudent(name, surname, age, phone, email, level, group, javascript, python, java, csharp);
   form.reset();
   levelLabelInput.textContent = 1;
-  inputs.gr[0].checked = true;
+  formEl.gr[0].checked = true;
 });
 
 // (formos validacija naudojant JavaScript):

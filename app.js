@@ -29,9 +29,10 @@ const divStudentList = document.getElementById('student-list');
 const inputLevel = document.getElementById('level');
 const levelLabelInput = document.getElementById('level-value');
 // Modal
-function displayModal(modalText) {
+function displayModal(modalText, time, color = 'black') {
   const h3 = document.createElement('h3');
   h3.textContent = modalText;
+  h3.style.color = color;
 
   spanModal.append(h3);
   spanModal.style.display = 'block';
@@ -41,11 +42,11 @@ function displayModal(modalText) {
     spanModal.style.display = 'none';
     backdrop.style.display = 'none';
     spanModal.children[0].remove();
-  }, 5000);
+  }, time);
 }
 
 function addStudent(name, surname, age, phone, email, level, group, ...languages) {
-  displayModal(`Sukurtas Studentas: ${name} ${surname}`);
+  displayModal(`Sukurtas Studentas: ${name} ${surname}`, 5000);
   // Student List item
   const div = document.createElement('div');
   div.className = 'student-item';
@@ -96,6 +97,8 @@ function addStudent(name, surname, age, phone, email, level, group, ...languages
   divStudentList.prepend(div);
 }
 
+function displayInvalidInput() {}
+
 // Range input
 inputLevel.addEventListener('input', event => {
   levelLabelInput.textContent = event.target.value;
@@ -105,6 +108,27 @@ inputLevel.addEventListener('input', event => {
 form.addEventListener('submit', event => {
   event.preventDefault();
   const form = event.target;
+
+  const requiredInputs = Array.from(document.querySelectorAll('.required'));
+  requiredInputs.forEach(input => {
+    input.style.borderColor = 'rgb(152, 159, 184)';
+    const oldSpan = input.parentElement.querySelector('span');
+    oldSpan && oldSpan.remove();
+  });
+  const emptyInputs = requiredInputs.filter(input => input.value.trim().length === 0);
+  if (emptyInputs.length !== 0) {
+    displayModal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
+    emptyInputs.forEach(input => {
+      const span = document.createElement('span');
+      input.style.borderColor = 'red';
+      span.textContent = 'Sis laukelis yra privalomas';
+      span.style.color = 'red';
+      span.className = 'error';
+      input.before(span);
+    });
+    return;
+  }
+
   const inputs = form.elements;
 
   const name = inputs.name.value;
@@ -125,11 +149,11 @@ form.addEventListener('submit', event => {
   inputs.gr[0].checked = true;
 });
 
-// 1. Vietoje asmens duomenų (el. paštas ir tel. nr) rodyti tik žvaigždutes „****".
-// 2. Kiekviename „student-item" elemente sukurti mygtuką „Rodyti asmens duomenis".
-// 3. Paspaudus šį mygtuką:
-// 3.1. Parodyti to studento el. paštą ir tel. nr.
-// 3.2. Pakeist mygtuko tekstą į „Slėpti asmens duomenis".
-// 4. Jeigu asmens duomenys yra rodomi, tai paspaudus mygtuką:
-// 4.1. Paslėpti asmens duomenis.
-// 4.2. Mygtuko tekstą pakeisti į „Rodyti asmens duomenis".
+// (formos validacija naudojant JavaScript):
+// Papildyti formos validaciją. Jeigu:
+// 1. Vardas yra trumpesnis nei 3 simboliai, parašyti: „Vardas privalo būti bent 3 simbolių ilgumo".
+// 2. Pavardė yra trumpesnė nei 3 simboliai, parašyti: „Pavardė privalo būti bent 3 simbolių ilgumo".
+// 3. Amžius yra neigamas, parašyti: „Amžius privalo būti teigiamas skaičius".
+// 4. Amžius yra daugiau nei 120 metų, parašyti: „Įvestas amžius yra per didelis".
+// 5. Telefono numeris yra mažiau nei 9 arba daugiau nei 12, parašyti: „Įvestas telefono numeris yra neteisingas".
+// 6. Elektroninis paštas yra trumpesnis nei 5 simboliai arba jame nėra panaudotas @ simbolis, parašyti: „Įvestas elektroninis paštas yra neteisingas".

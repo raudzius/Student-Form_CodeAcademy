@@ -47,7 +47,7 @@ function displayModal(modalText, time, color = 'black') {
 }
 
 // Student List item
-function addStudent(name, surname, age, phone, email, level, group, ...languages) {
+function addStudent(name, surname, age, phone, email, level, group, ...languagesArray) {
   displayModal(`Sukurtas Studentas: ${name} ${surname}`, 5000);
 
   const div = document.createElement('div');
@@ -61,8 +61,7 @@ function addStudent(name, surname, age, phone, email, level, group, ...languages
     return stars;
   }
 
-  const pickedLanguages = languages.filter(language => language !== '');
-  const displayLanguages = pickedLanguages.length ? pickedLanguages.join(', ') + '.' : '';
+  const languageString = languagesArray.length ? languagesArray.join(', ') + '.' : '';
   const h3 = document.createElement('h3');
   h3.textContent = `${name} ${surname}`;
   const p1 = document.createElement('p');
@@ -76,7 +75,7 @@ function addStudent(name, surname, age, phone, email, level, group, ...languages
   const p5 = document.createElement('p');
   p5.textContent = 'Group: ' + group;
   const p6 = document.createElement('p');
-  p6.textContent = 'Programming languages: ' + displayLanguages;
+  p6.textContent = 'Programming languages: ' + languageString;
   const btn = document.createElement('button');
   btn.textContent = 'Rodyti asmens duomenis';
 
@@ -165,7 +164,6 @@ form.addEventListener('submit', event => {
   event.preventDefault();
   const form = event.target;
   const formEl = form.elements;
-
   const nameInput = formEl.name;
   const surnameInput = formEl.surname;
   const ageInput = formEl.age;
@@ -173,10 +171,8 @@ form.addEventListener('submit', event => {
   const emailInput = formEl.email;
   const level = formEl.level.value;
   const group = formEl.gr.value;
-  const javascript = formEl.javascript.checked ? formEl.javascript.value : '';
-  const python = formEl.python.checked ? formEl.python.value : '';
-  const java = formEl.java.checked ? formEl.java.value : '';
-  const csharp = formEl.csharp.checked ? formEl.csharp.value : '';
+  const fieldsetEl = formEl[21].elements;
+  const languagesArray = [...fieldsetEl].filter(language => language.checked).map(language => language.value);
 
   filterInvalidInputs(nameInput, surnameInput, ageInput, phoneInput, emailInput);
   if (!isValid) {
@@ -184,7 +180,7 @@ form.addEventListener('submit', event => {
     return;
   }
 
-  addStudent(nameInput.value, surnameInput.value, ageInput.value, phoneInput.value, emailInput.value, level, group, javascript, python, java, csharp);
+  addStudent(nameInput.value, surnameInput.value, ageInput.value, phoneInput.value, emailInput.value, level, group, ...languagesArray);
   form.reset();
   levelLabelInput.textContent = 1;
   formEl.gr[0].checked = true;

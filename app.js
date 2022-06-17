@@ -28,6 +28,7 @@ const form = document.querySelector('form');
 const divStudentList = document.getElementById('student-list');
 const inputLevel = document.getElementById('level');
 const levelLabelInput = document.getElementById('level-value');
+
 // Modal
 function displayModal(modalText, time, color = 'black') {
   const h3 = document.createElement('h3');
@@ -45,9 +46,10 @@ function displayModal(modalText, time, color = 'black') {
   }, time);
 }
 
+// Student List item
 function addStudent(name, surname, age, phone, email, level, group, ...languages) {
   displayModal(`Sukurtas Studentas: ${name} ${surname}`, 5000);
-  // Student List item
+
   const div = document.createElement('div');
   div.className = 'student-item';
 
@@ -105,26 +107,56 @@ inputLevel.addEventListener('input', event => {
 let isValid = true;
 
 // Input validation
-function getInvalidInputs() {
-  document.querySelectorAll('.required').forEach(input => {
-    input.style.borderColor = 'rgb(152, 159, 184)';
-  });
-  document.querySelectorAll('.invalid').forEach(span => span.remove());
-
+function filterInvalidInputs(nameInput, surnameInput, ageInput, phoneInput, emailInput) {
   const requiredInputs = [...document.querySelectorAll('.required')];
-  const emptyInputs = requiredInputs.filter(input => !input.value.trim().length);
+  const emptyInputArray = requiredInputs.filter(input => !input.value.trim().length);
+  const warningSpans = document.querySelectorAll('.warning');
 
-  if (emptyInputs.length) {
-    emptyInputs.forEach(input => {
-      const span = document.createElement('span');
-      input.style.borderColor = 'red';
-      span.textContent = 'Sis laukelis yra privalomas';
-      span.style.color = 'red';
-      span.className = 'invalid';
-      input.before(span);
+  warningSpans.forEach(span => span.remove());
+  requiredInputs.forEach(input => (input.style.borderColor = 'rgb(152, 159, 184)'));
+
+  function inputWarning(input, warningText) {
+    const span = document.createElement('span');
+    input.style.borderColor = 'red';
+    span.textContent = warningText;
+    span.style.color = 'red';
+    span.className = 'warning';
+    input.parentElement.querySelector('.warning') || input.before(span);
+  }
+
+  if (emptyInputArray.length) {
+    emptyInputArray.forEach(input => {
+      inputWarning(input, 'Sis laukelis yra privalomas');
     });
-    displayModal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
     isValid = false;
+  }
+
+  if (nameInput.value.length < 3) {
+    inputWarning(nameInput, 'Vardas privalo būti bent 3 simbolių ilgumo');
+    isValid = false;
+  }
+  if (surnameInput.value.length < 3) {
+    inputWarning(surnameInput, 'Pavardė privalo būti bent 3 simbolių ilgumo');
+    isValid = false;
+  }
+  if (ageInput.value < 0) {
+    inputWarning(ageInput, 'Amžius privalo būti teigiamas skaičius');
+    isValid = false;
+  } else if (ageInput.value > 120) {
+    inputWarning(ageInput, 'Įvestas amžius yra per didelis');
+    isValid = false;
+  }
+  if (phoneInput.value.length < 8 || phoneInput.value.length > 12) {
+    inputWarning(phoneInput, 'Įvestas telefono numeris yra neteisingas');
+    isValid = false;
+  }
+  if (emailInput.value.length < 5 || !emailInput.value.includes('@')) {
+    inputWarning(emailInput, 'Įvestas elektroninis paštas yra neteisingas');
+    isValid = false;
+  }
+
+  if (!isValid) {
+    displayModal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
   }
 }
 
@@ -134,18 +166,11 @@ form.addEventListener('submit', event => {
   const form = event.target;
   const formEl = form.elements;
 
-  getInvalidInputs();
-
-  if (!isValid) {
-    isValid = true;
-    return;
-  }
-
-  const name = formEl.name.value;
-  const surname = formEl.surname.value;
-  const age = formEl.age.value;
-  const phone = formEl.phone.value;
-  const email = formEl.email.value;
+  const nameInput = formEl.name;
+  const surnameInput = formEl.surname;
+  const ageInput = formEl.age;
+  const phoneInput = formEl.phone;
+  const emailInput = formEl.email;
   const level = formEl.level.value;
   const group = formEl.gr.value;
   const javascript = formEl.javascript.checked ? formEl.javascript.value : '';
@@ -153,7 +178,13 @@ form.addEventListener('submit', event => {
   const java = formEl.java.checked ? formEl.java.value : '';
   const csharp = formEl.csharp.checked ? formEl.csharp.value : '';
 
-  addStudent(name, surname, age, phone, email, level, group, javascript, python, java, csharp);
+  filterInvalidInputs(nameInput, surnameInput, ageInput, phoneInput, emailInput);
+  if (!isValid) {
+    isValid = true;
+    return;
+  }
+
+  addStudent(nameInput.value, surnameInput.value, ageInput.value, phoneInput.value, emailInput.value, level, group, javascript, python, java, csharp);
   form.reset();
   levelLabelInput.textContent = 1;
   formEl.gr[0].checked = true;

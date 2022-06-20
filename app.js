@@ -1,239 +1,4 @@
-//Radio buttons HTML
-const divRadio = document.getElementById('div-radio');
-
-for (let i = 1; i <= 15; i++) {
-  const span = document.createElement('span');
-  const label = document.createElement('label');
-  label.textContent = `${i}gr`;
-  label.setAttribute('for', `${i}gr`);
-
-  const input = document.createElement('input');
-  const attrs = { type: 'radio', name: `gr`, id: `${i}gr`, value: `${i}` };
-  for (const key in attrs) {
-    input.setAttribute(key, attrs[key]);
-  }
-
-  if (i === 1) {
-    input.checked = true;
-  }
-
-  span.append(label, input);
-  divRadio.append(span);
-}
-//
-
-const spanModal = document.querySelector('span.modal');
-const backdrop = document.getElementById('backdrop');
-const form = document.querySelector('form');
-const divStudentList = document.getElementById('student-list');
-const inputLevel = document.getElementById('level');
-const levelLabelInput = document.getElementById('level-value');
-let editStudent = false;
-let editTarget;
-
-// Modal
-function displayModal(modalText, time, color = 'black') {
-  const h3 = document.createElement('h3');
-  h3.textContent = modalText;
-  h3.style.color = color;
-
-  spanModal.append(h3);
-  spanModal.style.display = 'block';
-  backdrop.style.display = 'block';
-
-  setTimeout(() => {
-    spanModal.style.display = 'none';
-    backdrop.style.display = 'none';
-    spanModal.children[0].remove();
-  }, time);
-}
-
-// Student List item
-function addStudent(studentInfo) {
-  const div = document.createElement('div');
-  div.className = 'student-item';
-
-  function turnLettersToStars(word) {
-    let stars = '';
-    for (i = 0; i < word.length; i++) {
-      stars += '*';
-    }
-    return stars;
-  }
-
-  const languageString = studentInfo.languages.length ? studentInfo.languages.join(', ') + '.' : '';
-  const h3 = document.createElement('h3');
-  h3.textContent = `${studentInfo.name} ${studentInfo.surname}`;
-  const p1 = document.createElement('p');
-  p1.textContent = 'Age: ' + studentInfo.age;
-  const p2 = document.createElement('p');
-  p2.textContent = 'Tel: ' + turnLettersToStars(studentInfo.phone);
-  const p3 = document.createElement('p');
-  p3.textContent = 'E-mail: ' + turnLettersToStars(studentInfo.email);
-  const p4 = document.createElement('p');
-  p4.textContent = 'Level: ' + studentInfo.level;
-  const p5 = document.createElement('p');
-  p5.textContent = 'Group: ' + studentInfo.group;
-  const p6 = document.createElement('p');
-  p6.textContent = 'Programming languages: ' + languageString;
-  const infoBtn = document.createElement('button');
-  infoBtn.textContent = 'Rodyti asmens duomenis';
-  const deleteBtn = document.createElement('button');
-  deleteBtn.textContent = 'Ištrinti studentą';
-  const editBtn = document.createElement('button');
-  editBtn.textContent = 'Redaguoti studentą';
-
-  let isHidden = true;
-
-  infoBtn.addEventListener('click', () => {
-    if (isHidden) {
-      p2.textContent = 'Tel: ' + studentInfo.phone;
-      p3.textContent = 'E-mail: ' + studentInfo.email;
-      infoBtn.textContent = 'Slepti asmens duomenis';
-    } else {
-      p2.textContent = 'Tel: ' + turnLettersToStars(studentInfo.phone);
-      p3.textContent = 'E-mail: ' + turnLettersToStars(studentInfo.email);
-      infoBtn.textContent = 'Rodyti asmens duomenis';
-    }
-    isHidden = !isHidden;
-  });
-
-  deleteBtn.addEventListener('click', e => {
-    e.target.parentElement.remove();
-    displayModal(`Studentas ${studentInfo.name} ${studentInfo.surname} sėkmingai ištrintas.`, 3000);
-  });
-
-  editBtn.addEventListener('click', e => {
-    window.scrollTo(0, 0);
-    form.elements.name.value = studentInfo.name;
-    form.elements.surname.value = studentInfo.surname;
-    form.elements.age.value = studentInfo.age;
-    form.elements.phone.value = studentInfo.phone;
-    form.elements.email.value = studentInfo.email;
-    form.elements.level.value = studentInfo.level;
-    form.elements.gr.value = +studentInfo.group;
-    form.elements.languages.elements = [...form.elements.languages.elements].filter(input => studentInfo.languages.includes(input.value)).forEach(input => (input.checked = true));
-    form.elements.submit.textContent = 'Save Changes';
-    editStudent = true;
-    editTarget = e.target.parentElement;
-  });
-
-  if (editStudent) {
-    console.log(editTarget);
-    editTarget.innerHTML = ``;
-    editTarget.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
-    displayModal(`Studento ${studentInfo.name} ${studentInfo.surname} duomenys sėkmingai pakeisti`, 3000, 'green');
-    return;
-  }
-
-  div.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
-  divStudentList.prepend(div);
-  return 0;
-}
-
-// Range input
-inputLevel.addEventListener('input', event => {
-  levelLabelInput.textContent = event.target.value;
-});
-
-// Input validation
-function filterInvalidInputs(requiredInputs) {
-  const requiredInputsArray = Object.values(requiredInputs);
-  const emptyInputArray = requiredInputsArray.filter(input => !input.value.trim().length);
-  const warningSpans = document.querySelectorAll('.warning');
-  let isValid = true;
-
-  warningSpans.forEach(span => span.remove());
-  requiredInputsArray.forEach(input => (input.style.borderColor = 'rgb(152, 159, 184)'));
-
-  function inputWarning(input, warningText) {
-    const span = document.createElement('span');
-    input.style.borderColor = 'red';
-    span.textContent = warningText;
-    span.style.color = 'red';
-    span.className = 'warning';
-    input.parentElement.querySelector('.warning') || input.before(span);
-    isValid = false;
-  }
-
-  if (emptyInputArray.length) {
-    emptyInputArray.forEach(input => {
-      inputWarning(input, 'Sis laukelis yra privalomas');
-    });
-  }
-
-  if (requiredInputs.nameInput.value.length < 3) {
-    inputWarning(requiredInputs.nameInput, 'Vardas privalo būti bent 3 simbolių ilgumo');
-  }
-  if (requiredInputs.surnameInput.value.length < 3) {
-    inputWarning(requiredInputs.surnameInput, 'Pavardė privalo būti bent 3 simbolių ilgumo');
-  }
-  if (requiredInputs.ageInput.value < 0) {
-    inputWarning(requiredInputs.ageInput, 'Amžius privalo būti teigiamas skaičius');
-  } else if (requiredInputs.ageInput.value > 120) {
-    inputWarning(requiredInputs.ageInput, 'Įvestas amžius yra per didelis');
-  }
-  if (requiredInputs.phoneInput.value.length < 8 || requiredInputs.phoneInput.value.length > 12) {
-    inputWarning(requiredInputs.phoneInput, 'Įvestas telefono numeris yra neteisingas');
-  }
-  if (requiredInputs.emailInput.value.length < 5 || !requiredInputs.emailInput.value.includes('@')) {
-    inputWarning(requiredInputs.emailInput, 'Įvestas elektroninis paštas yra neteisingas');
-  }
-
-  if (!isValid) {
-    displayModal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
-  }
-  return isValid;
-}
-
-// Form submit
-form.addEventListener('submit', event => {
-  event.preventDefault();
-  const form = event.target;
-  const formEl = form.elements;
-  const nameInput = formEl.name;
-  const surnameInput = formEl.surname;
-  const ageInput = formEl.age;
-  const phoneInput = formEl.phone;
-  const emailInput = formEl.email;
-  const level = formEl.level.value;
-  const group = formEl.gr.value;
-  const fieldsetEl = form.elements.languages.elements;
-  const languagesArray = [...fieldsetEl].filter(language => language.checked).map(language => language.value);
-
-  const requiredInputs = {
-    nameInput: nameInput,
-    surnameInput: surnameInput,
-    ageInput: ageInput,
-    phoneInput: phoneInput,
-    emailInput: emailInput,
-  };
-
-  if (filterInvalidInputs(requiredInputs) === false) {
-    return;
-  }
-
-  const studentInfo = {
-    name: nameInput.value,
-    surname: surnameInput.value,
-    age: ageInput.value,
-    phone: phoneInput.value,
-    email: emailInput.value,
-    level: level,
-    group: group,
-    languages: [...languagesArray],
-  };
-
-  if (addStudent(studentInfo) === 0) {
-    displayModal(`Sukurtas Studentas: ${studentInfo.name} ${studentInfo.surname}`, 3000);
-  }
-  form.reset();
-  levelLabelInput.textContent = 1;
-  formEl.gr[0].checked = true;
-  formEl.submit.textContent = 'Submit';
-  editStudent = false;
-});
-
+// "Backend data"
 const studentData = [
   {
     name: 'Mykolas',
@@ -287,13 +52,246 @@ const studentData = [
   },
 ];
 
-function addStudentData(data) {
-  for (let i = 0; i < data.length; i++) {
-    addStudent(data[i]);
+//Radio buttons HTML
+const divRadio = document.getElementById('div-radio');
+
+for (let i = 1; i <= 15; i++) {
+  const span = document.createElement('span');
+  const label = document.createElement('label');
+  label.textContent = `${i}gr`;
+  label.setAttribute('for', `${i}gr`);
+
+  const input = document.createElement('input');
+  const attributes = { type: 'radio', name: `gr`, id: `${i}gr`, value: `${i}` };
+  for (const key in attributes) {
+    input.setAttribute(key, attributes[key]);
   }
+
+  if (i === 1) {
+    input.checked = true;
+  }
+
+  span.append(label, input);
+  divRadio.append(span);
+}
+//
+
+// Global Variables
+const alertBox = document.querySelector('span.modal');
+const alertBackground = document.getElementById('backdrop');
+const form = document.querySelector('form');
+const studentList = document.getElementById('student-list');
+const levelInput = document.getElementById('level');
+const levelLabelSpan = document.getElementById('level-value');
+
+let isEditingStudent = false;
+let editedStudent;
+
+// Alert
+function displayAlertBox(alertText, displayTime, alertTextColor = 'black') {
+  const h3 = document.createElement('h3');
+  h3.textContent = alertText;
+  h3.style.color = alertTextColor;
+
+  alertBox.append(h3);
+  alertBox.style.display = 'block';
+  alertBackground.style.display = 'block';
+
+  setTimeout(() => {
+    alertBox.style.display = 'none';
+    alertBackground.style.display = 'none';
+    alertBox.children[0].remove();
+  }, displayTime);
 }
 
-addStudentData(studentData);
+// Student List item
+function addData(studentData, submit = true) {
+  const div = document.createElement('div');
+  div.className = 'student-item';
+
+  let isHiddenData = true;
+
+  function turnLettersToStars(string) {
+    let stars = '';
+    for (i = 0; i < string.length; i++) {
+      stars += '*';
+    }
+    return stars;
+  }
+  const languageString = studentData.languages.length ? studentData.languages.join(', ') + '.' : '';
+  const h3 = document.createElement('h3');
+  h3.textContent = `${studentData.name} ${studentData.surname}`;
+  const p1 = document.createElement('p');
+  p1.textContent = 'Age: ' + studentData.age;
+  const p2 = document.createElement('p');
+  p2.textContent = 'Tel: ' + turnLettersToStars(studentData.phone);
+  const p3 = document.createElement('p');
+  p3.textContent = 'E-mail: ' + turnLettersToStars(studentData.email);
+  const p4 = document.createElement('p');
+  p4.textContent = 'Level: ' + studentData.level;
+  const p5 = document.createElement('p');
+  p5.textContent = 'Group: ' + studentData.group;
+  const p6 = document.createElement('p');
+  p6.textContent = 'Programming languages: ' + languageString;
+
+  // Info/Delete/Edit buttons
+  const infoBtn = document.createElement('button');
+  infoBtn.textContent = 'Rodyti asmens duomenis';
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Ištrinti studentą';
+  const editBtn = document.createElement('button');
+  editBtn.textContent = 'Redaguoti studentą';
+
+  infoBtn.addEventListener('click', () => {
+    if (isHiddenData) {
+      p2.textContent = 'Tel: ' + studentData.phone;
+      p3.textContent = 'E-mail: ' + studentData.email;
+      infoBtn.textContent = 'Slepti asmens duomenis';
+    } else {
+      p2.textContent = 'Tel: ' + turnLettersToStars(studentData.phone);
+      p3.textContent = 'E-mail: ' + turnLettersToStars(studentData.email);
+      infoBtn.textContent = 'Rodyti asmens duomenis';
+    }
+    isHiddenData = !isHiddenData;
+  });
+
+  deleteBtn.addEventListener('click', e => {
+    e.target.parentElement.remove();
+    displayAlertBox(`Studentas ${studentData.name} ${studentData.surname} sėkmingai ištrintas.`, 3000);
+  });
+
+  editBtn.addEventListener('click', event => {
+    window.scrollTo(0, 0);
+    form.elements.name.value = studentData.name;
+    form.elements.surname.value = studentData.surname;
+    form.elements.age.value = studentData.age;
+    form.elements.phone.value = studentData.phone;
+    form.elements.email.value = studentData.email;
+    form.elements.level.value = studentData.level;
+    form.elements.gr.value = +studentData.group;
+    form.elements.languages.elements = [...form.elements.languages.elements].filter(input => studentData.languages.includes(input.value)).forEach(input => (input.checked = true));
+    form.elements.submit.textContent = 'Save Changes';
+
+    isEditingStudent = true;
+    editedStudent = event.target.parentElement;
+  });
+  if (isEditingStudent) {
+    editedStudent.innerHTML = ``;
+    editedStudent.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
+    displayAlertBox(`Studento ${studentData.name} ${studentData.surname} duomenys sėkmingai pakeisti`, 3000, 'green');
+    return;
+  }
+  //
+  div.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
+  studentList.prepend(div);
+  if (submit) displayAlertBox(`Sukurtas Studentas: ${studentData.name} ${studentData.surname}`, 3000);
+}
+
+// Dynamic Range Output
+levelInput.addEventListener('input', event => {
+  levelLabelSpan.textContent = event.target.value;
+});
+
+// Render Backend Data
+function renderData(data) {
+  for (let i = 0; i < data.length; i++) {
+    addData(data[i], false);
+  }
+}
+renderData(studentData);
+
+// Input validation
+function markInvalidInputs(requiredInputs) {
+  const requiredInputsArray = Object.values(requiredInputs);
+  const emptyInputArray = requiredInputsArray.filter(input => !input.value.trim().length);
+  const warningSpans = document.querySelectorAll('.warning');
+
+  let isValid = true;
+
+  requiredInputsArray.forEach(input => (input.style.borderColor = 'rgb(152, 159, 184)'));
+  warningSpans.forEach(span => span.remove());
+
+  function inputWarning(input, warningText) {
+    const span = document.createElement('span');
+    input.style.borderColor = 'red';
+    span.textContent = warningText;
+    span.style.color = 'red';
+    span.className = 'warning';
+    input.parentElement.querySelector('.warning') || input.before(span);
+    isValid = false;
+  }
+
+  if (emptyInputArray.length) {
+    emptyInputArray.forEach(input => {
+      inputWarning(input, 'Sis laukelis yra privalomas');
+    });
+  }
+
+  if (requiredInputs.nameInput.value.length < 3) {
+    inputWarning(requiredInputs.nameInput, 'Vardas privalo būti bent 3 simbolių ilgumo');
+  }
+  if (requiredInputs.surnameInput.value.length < 3) {
+    inputWarning(requiredInputs.surnameInput, 'Pavardė privalo būti bent 3 simbolių ilgumo');
+  }
+  if (requiredInputs.ageInput.value < 0) {
+    inputWarning(requiredInputs.ageInput, 'Amžius privalo būti teigiamas skaičius');
+  } else if (requiredInputs.ageInput.value > 120) {
+    inputWarning(requiredInputs.ageInput, 'Įvestas amžius yra per didelis');
+  }
+  if (requiredInputs.phoneInput.value.length < 8 || requiredInputs.phoneInput.value.length > 12) {
+    inputWarning(requiredInputs.phoneInput, 'Įvestas telefono numeris yra neteisingas');
+  }
+  if (requiredInputs.emailInput.value.length < 5 || !requiredInputs.emailInput.value.includes('@')) {
+    inputWarning(requiredInputs.emailInput, 'Įvestas elektroninis paštas yra neteisingas');
+  }
+
+  if (!isValid) {
+    displayAlertBox('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
+  }
+  return isValid;
+}
+
+// Form submit
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  const form = event.target;
+  const formEl = form.elements;
+  const nameInput = formEl.name;
+  const surnameInput = formEl.surname;
+  const ageInput = formEl.age;
+  const phoneInput = formEl.phone;
+  const emailInput = formEl.email;
+  const programmingLanguagesArray = [...formEl.languages.elements].filter(language => language.checked).map(language => language.value);
+
+  const requiredInputs = {
+    nameInput: nameInput,
+    surnameInput: surnameInput,
+    ageInput: ageInput,
+    phoneInput: phoneInput,
+    emailInput: emailInput,
+  };
+  const inputAreValid = markInvalidInputs(requiredInputs);
+  if (!inputAreValid) {
+    return;
+  }
+
+  const studentData = {
+    name: nameInput.value,
+    surname: surnameInput.value,
+    age: ageInput.value,
+    phone: phoneInput.value,
+    email: emailInput.value,
+    level: formEl.level.value,
+    group: formEl.gr.value,
+    languages: [...programmingLanguagesArray],
+  };
+  addData(studentData);
+
+  form.reset();
+  formEl.gr[0].checked = true;
+  levelLabelSpan.textContent = 1;
+  formEl.submit.textContent = 'Submit';
+});
 
 // 1. Prie kiekvieno studento pridėti mygtuką, kurį paspaudus leistų redaguoti studento duomenis.
 // 2. Redaguojant studentą, submit mygtuko tekstas turėtų pasikeisti į „Save Changes".

@@ -31,7 +31,7 @@ h1 {
 }
 
 form {
-  width: 30rem;
+  width: 42rem;
   margin: 0 auto;
   background-color: rgb(246, 249, 255);
   padding: 1rem;
@@ -63,9 +63,10 @@ input:focus {
   background-color: rgb(217, 227, 247);
 }
 
-#group-div{
-    display: flex;
-    align-items: center;
+#group-div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 #div-radio {
@@ -119,10 +120,14 @@ button:hover {
 }
 
 #student-list div {
-  width: 30rem;
+  width: 42rem;
   margin: 1rem auto;
   background-color: rgb(202, 216, 244);
   padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   border-radius: 6px;
+}
+
+#student-list button {
+  margin: 0.1rem;
 }

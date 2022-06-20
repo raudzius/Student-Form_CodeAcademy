@@ -47,9 +47,7 @@ function displayModal(modalText, time, color = 'black') {
 }
 
 // Student List item
-function addStudent(name, surname, age, phone, email, level, group, ...languagesArray) {
-  displayModal(`Sukurtas Studentas: ${name} ${surname}`, 5000);
-
+function addStudent(studentInfo) {
   const div = document.createElement('div');
   div.className = 'student-item';
 
@@ -61,40 +59,51 @@ function addStudent(name, surname, age, phone, email, level, group, ...languages
     return stars;
   }
 
-  const languageString = languagesArray.length ? languagesArray.join(', ') + '.' : '';
+  const languageString = studentInfo.languages.length ? studentInfo.languages.join(', ') + '.' : '';
   const h3 = document.createElement('h3');
-  h3.textContent = `${name} ${surname}`;
+  h3.textContent = `${studentInfo.name} ${studentInfo.surname}`;
   const p1 = document.createElement('p');
-  p1.textContent = 'Age: ' + age;
+  p1.textContent = 'Age: ' + studentInfo.age;
   const p2 = document.createElement('p');
-  p2.textContent = 'Tel: ' + turnLettersToStars(phone);
+  p2.textContent = 'Tel: ' + turnLettersToStars(studentInfo.phone);
   const p3 = document.createElement('p');
-  p3.textContent = 'E-mail: ' + turnLettersToStars(email);
+  p3.textContent = 'E-mail: ' + turnLettersToStars(studentInfo.email);
   const p4 = document.createElement('p');
-  p4.textContent = 'Level: ' + level;
+  p4.textContent = 'Level: ' + studentInfo.level;
   const p5 = document.createElement('p');
-  p5.textContent = 'Group: ' + group;
+  p5.textContent = 'Group: ' + studentInfo.group;
   const p6 = document.createElement('p');
   p6.textContent = 'Programming languages: ' + languageString;
-  const btn = document.createElement('button');
-  btn.textContent = 'Rodyti asmens duomenis';
+  const infoBtn = document.createElement('button');
+  infoBtn.textContent = 'Rodyti asmens duomenis';
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Ištrinti studentą';
+  const editBtn = document.createElement('button');
+  editBtn.textContent = 'Redaguoti studentą';
 
   let isHidden = true;
 
-  btn.addEventListener('click', event => {
+  infoBtn.addEventListener('click', () => {
     if (isHidden) {
-      p2.textContent = 'Tel: ' + phone;
-      p3.textContent = 'E-mail: ' + email;
-      btn.textContent = 'Slepti asmens duomenis';
+      p2.textContent = 'Tel: ' + studentInfo.phone;
+      p3.textContent = 'E-mail: ' + studentInfo.email;
+      infoBtn.textContent = 'Slepti asmens duomenis';
     } else {
-      p2.textContent = 'Tel: ' + turnLettersToStars(phone);
-      p3.textContent = 'E-mail: ' + turnLettersToStars(email);
-      btn.textContent = 'Rodyti asmens duomenis';
+      p2.textContent = 'Tel: ' + turnLettersToStars(studentInfo.phone);
+      p3.textContent = 'E-mail: ' + turnLettersToStars(studentInfo.email);
+      infoBtn.textContent = 'Rodyti asmens duomenis';
     }
     isHidden = !isHidden;
   });
 
-  div.append(h3, p1, p2, p3, p4, p5, p6, btn);
+  deleteBtn.addEventListener('click', e => {
+    e.target.parentElement.remove();
+    displayModal(`Studentas ${studentInfo.name} ${studentInfo.surname} sėkmingai ištrintas.`, 3000, 'green');
+  });
+
+  editBtn.addEventListener('click', () => {});
+
+  div.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
   divStudentList.prepend(div);
 }
 
@@ -103,16 +112,15 @@ inputLevel.addEventListener('input', event => {
   levelLabelInput.textContent = event.target.value;
 });
 
-let isValid = true;
-
 // Input validation
-function filterInvalidInputs(nameInput, surnameInput, ageInput, phoneInput, emailInput) {
-  const requiredInputs = [...document.querySelectorAll('.required')];
-  const emptyInputArray = requiredInputs.filter(input => !input.value.trim().length);
+function filterInvalidInputs(requiredInputs) {
+  const requiredInputsArray = Object.values(requiredInputs);
+  const emptyInputArray = requiredInputsArray.filter(input => !input.value.trim().length);
   const warningSpans = document.querySelectorAll('.warning');
+  let isValid = true;
 
   warningSpans.forEach(span => span.remove());
-  requiredInputs.forEach(input => (input.style.borderColor = 'rgb(152, 159, 184)'));
+  requiredInputsArray.forEach(input => (input.style.borderColor = 'rgb(152, 159, 184)'));
 
   function inputWarning(input, warningText) {
     const span = document.createElement('span');
@@ -121,42 +129,37 @@ function filterInvalidInputs(nameInput, surnameInput, ageInput, phoneInput, emai
     span.style.color = 'red';
     span.className = 'warning';
     input.parentElement.querySelector('.warning') || input.before(span);
+    isValid = false;
   }
 
   if (emptyInputArray.length) {
     emptyInputArray.forEach(input => {
       inputWarning(input, 'Sis laukelis yra privalomas');
     });
-    isValid = false;
   }
 
-  if (nameInput.value.length < 3) {
-    inputWarning(nameInput, 'Vardas privalo būti bent 3 simbolių ilgumo');
-    isValid = false;
+  if (requiredInputs.nameInput.value.length < 3) {
+    inputWarning(requiredInputs.nameInput, 'Vardas privalo būti bent 3 simbolių ilgumo');
   }
-  if (surnameInput.value.length < 3) {
-    inputWarning(surnameInput, 'Pavardė privalo būti bent 3 simbolių ilgumo');
-    isValid = false;
+  if (requiredInputs.surnameInput.value.length < 3) {
+    inputWarning(requiredInputs.surnameInput, 'Pavardė privalo būti bent 3 simbolių ilgumo');
   }
-  if (ageInput.value < 0) {
-    inputWarning(ageInput, 'Amžius privalo būti teigiamas skaičius');
-    isValid = false;
-  } else if (ageInput.value > 120) {
-    inputWarning(ageInput, 'Įvestas amžius yra per didelis');
-    isValid = false;
+  if (requiredInputs.ageInput.value < 0) {
+    inputWarning(requiredInputs.ageInput, 'Amžius privalo būti teigiamas skaičius');
+  } else if (requiredInputs.ageInput.value > 120) {
+    inputWarning(requiredInputs.ageInput, 'Įvestas amžius yra per didelis');
   }
-  if (phoneInput.value.length < 8 || phoneInput.value.length > 12) {
-    inputWarning(phoneInput, 'Įvestas telefono numeris yra neteisingas');
-    isValid = false;
+  if (requiredInputs.phoneInput.value.length < 8 || requiredInputs.phoneInput.value.length > 12) {
+    inputWarning(requiredInputs.phoneInput, 'Įvestas telefono numeris yra neteisingas');
   }
-  if (emailInput.value.length < 5 || !emailInput.value.includes('@')) {
-    inputWarning(emailInput, 'Įvestas elektroninis paštas yra neteisingas');
-    isValid = false;
+  if (requiredInputs.emailInput.value.length < 5 || !requiredInputs.emailInput.value.includes('@')) {
+    inputWarning(requiredInputs.emailInput, 'Įvestas elektroninis paštas yra neteisingas');
   }
 
   if (!isValid) {
     displayModal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
   }
+  return isValid;
 }
 
 // Form submit
@@ -174,23 +177,107 @@ form.addEventListener('submit', event => {
   const fieldsetEl = formEl[21].elements;
   const languagesArray = [...fieldsetEl].filter(language => language.checked).map(language => language.value);
 
-  filterInvalidInputs(nameInput, surnameInput, ageInput, phoneInput, emailInput);
-  if (!isValid) {
-    isValid = true;
+  const requiredInputs = {
+    nameInput: nameInput,
+    surnameInput: surnameInput,
+    ageInput: ageInput,
+    phoneInput: phoneInput,
+    emailInput: emailInput,
+  };
+
+  if (filterInvalidInputs(requiredInputs) === false) {
     return;
   }
 
-  addStudent(nameInput.value, surnameInput.value, ageInput.value, phoneInput.value, emailInput.value, level, group, ...languagesArray);
+  const studentInfo = {
+    name: nameInput.value,
+    surname: surnameInput.value,
+    age: ageInput.value,
+    phone: phoneInput.value,
+    email: emailInput.value,
+    level: level,
+    group: group,
+    languages: [...languagesArray],
+  };
+
+  addStudent(studentInfo);
+  displayModal(`Sukurtas Studentas: ${studentInfo.name} ${studentInfo.surname}`, 5000);
   form.reset();
   levelLabelInput.textContent = 1;
   formEl.gr[0].checked = true;
 });
 
-// (formos validacija naudojant JavaScript):
-// Papildyti formos validaciją. Jeigu:
-// 1. Vardas yra trumpesnis nei 3 simboliai, parašyti: „Vardas privalo būti bent 3 simbolių ilgumo".
-// 2. Pavardė yra trumpesnė nei 3 simboliai, parašyti: „Pavardė privalo būti bent 3 simbolių ilgumo".
-// 3. Amžius yra neigamas, parašyti: „Amžius privalo būti teigiamas skaičius".
-// 4. Amžius yra daugiau nei 120 metų, parašyti: „Įvestas amžius yra per didelis".
-// 5. Telefono numeris yra mažiau nei 9 arba daugiau nei 12, parašyti: „Įvestas telefono numeris yra neteisingas".
-// 6. Elektroninis paštas yra trumpesnis nei 5 simboliai arba jame nėra panaudotas @ simbolis, parašyti: „Įvestas elektroninis paštas yra neteisingas".
+const studentData = [
+  {
+    name: 'Mykolas',
+    surname: 'Raudzius',
+    age: '21',
+    phone: '860000000',
+    email: 'mykolas@gmail.com',
+    level: 1,
+    group: 1,
+    languages: ['Python', 'Javascript', 'C#', 'Java'],
+  },
+  {
+    name: 'Mykolas',
+    surname: 'Raudzius',
+    age: '21',
+    phone: '860000000',
+    email: 'mykolas@gmail.com',
+    level: 1,
+    group: 1,
+    languages: ['Python', 'Javascript', 'C#', 'Java'],
+  },
+  {
+    name: 'Mykolas',
+    surname: 'Raudzius',
+    age: '21',
+    phone: '860000000',
+    email: 'mykolas@gmail.com',
+    level: 1,
+    group: 1,
+    languages: ['Python', 'Javascript', 'C#', 'Java'],
+  },
+  {
+    name: 'Mykolas',
+    surname: 'Raudzius',
+    age: '21',
+    phone: '860000000',
+    email: 'mykolas@gmail.com',
+    level: 1,
+    group: 1,
+    languages: ['Python', 'Javascript', 'C#', 'Java'],
+  },
+  {
+    name: 'Mykolas',
+    surname: 'Raudzius',
+    age: '21',
+    phone: '860000000',
+    email: 'mykolas@gmail.com',
+    level: 1,
+    group: 1,
+    languages: ['Python', 'Javascript', 'C#', 'Java'],
+  },
+];
+
+function addStudentData(data) {
+  for (let i = 0; i < data.length; i++) {
+    addStudent(data[i]);
+  }
+}
+
+addStudentData(studentData);
+
+// 1. Prie kiekvieno studento pridėti mygtuką, kurį paspaudus leistų redaguoti studento duomenis.
+// 2. Redaguojant studentą, submit mygtuko tekstas turėtų pasikeisti į „Save Changes".
+// 3. Pakeitus studento duomenis, turi iššokti <span> elementas, kuris informuoja apie studento duomenų redagavimą: „Studento (Vardas Pavardė) duomenys sėkmingai pakeisti". Šis span elementas dingsta po 5 sekundžių.
+
+// 1. Sukurti Edit mygtuką.
+// 2. Prie mygtuko pridėti event listener'į.
+// 3. Surinkti studento duomenis ir jais užpildyti formos laukelius.
+// 4. Pakeisti formos submit mygtuko tekstą.
+// 5. Išsaugoti studento HTML elementą kintamąjame.
+// 6. Submit event'o metu patikrinti ar kuriame naują studentą, ar redaguojame jau sukurtą.
+// 7. Jeigu studentas redaguojamas, šį naują (redaguotą) HTML elementą panaudoti perrašant seną studento HTML elementą (kuris išsaugotas 5 žingsnyje).
+
+// 8. Pakeisti formos submit mygtuko tekstą į pradinį ir pakeisti iššokančio pranešimo tekstą.

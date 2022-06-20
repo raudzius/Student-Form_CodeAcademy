@@ -28,6 +28,8 @@ const form = document.querySelector('form');
 const divStudentList = document.getElementById('student-list');
 const inputLevel = document.getElementById('level');
 const levelLabelInput = document.getElementById('level-value');
+let editStudent = false;
+let editTarget;
 
 // Modal
 function displayModal(modalText, time, color = 'black') {
@@ -98,10 +100,10 @@ function addStudent(studentInfo) {
 
   deleteBtn.addEventListener('click', e => {
     e.target.parentElement.remove();
-    displayModal(`Studentas ${studentInfo.name} ${studentInfo.surname} sėkmingai ištrintas.`, 3000, 'green');
+    displayModal(`Studentas ${studentInfo.name} ${studentInfo.surname} sėkmingai ištrintas.`, 3000);
   });
 
-  editBtn.addEventListener('click', () => {
+  editBtn.addEventListener('click', e => {
     window.scrollTo(0, 0);
     form.elements.name.value = studentInfo.name;
     form.elements.surname.value = studentInfo.surname;
@@ -112,10 +114,21 @@ function addStudent(studentInfo) {
     form.elements.gr.value = +studentInfo.group;
     form.elements.languages.elements = [...form.elements.languages.elements].filter(input => studentInfo.languages.includes(input.value)).forEach(input => (input.checked = true));
     form.elements.submit.textContent = 'Save Changes';
+    editStudent = true;
+    editTarget = e.target.parentElement;
   });
+
+  if (editStudent) {
+    console.log(editTarget);
+    editTarget.innerHTML = ``;
+    editTarget.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
+    displayModal(`Studento ${studentInfo.name} ${studentInfo.surname} duomenys sėkmingai pakeisti`, 3000, 'green');
+    return;
+  }
 
   div.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
   divStudentList.prepend(div);
+  return 0;
 }
 
 // Range input
@@ -211,11 +224,14 @@ form.addEventListener('submit', event => {
     languages: [...languagesArray],
   };
 
-  addStudent(studentInfo);
-  displayModal(`Sukurtas Studentas: ${studentInfo.name} ${studentInfo.surname}`, 5000);
+  if (addStudent(studentInfo) === 0) {
+    displayModal(`Sukurtas Studentas: ${studentInfo.name} ${studentInfo.surname}`, 3000);
+  }
   form.reset();
   levelLabelInput.textContent = 1;
   formEl.gr[0].checked = true;
+  formEl.submit.textContent = 'Submit';
+  editStudent = false;
 });
 
 const studentData = [

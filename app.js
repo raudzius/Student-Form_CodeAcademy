@@ -84,8 +84,7 @@ const studentList = document.getElementById('student-list');
 const levelInput = document.getElementById('level');
 const levelLabelSpan = document.getElementById('level-value');
 
-let isEditingStudent = false;
-let editedStudent;
+let editedStudent = false;
 
 // Alert
 function displayAlertBox(alertText, displayTime, alertTextColor = 'black') {
@@ -172,10 +171,9 @@ function addData(studentData, submit = true) {
     form.elements.languages.elements = [...form.elements.languages.elements].filter(input => studentData.languages.includes(input.value)).forEach(input => (input.checked = true));
     form.elements.submit.textContent = 'Save Changes';
 
-    isEditingStudent = true;
     editedStudent = event.target.parentElement;
   });
-  if (isEditingStudent) {
+  if (editedStudent) {
     editedStudent.innerHTML = ``;
     editedStudent.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
     displayAlertBox(`Studento ${studentData.name} ${studentData.surname} duomenys sėkmingai pakeisti`, 3000, 'green');

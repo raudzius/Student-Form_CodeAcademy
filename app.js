@@ -101,7 +101,18 @@ function addStudent(studentInfo) {
     displayModal(`Studentas ${studentInfo.name} ${studentInfo.surname} sėkmingai ištrintas.`, 3000, 'green');
   });
 
-  editBtn.addEventListener('click', () => {});
+  editBtn.addEventListener('click', () => {
+    window.scrollTo(0, 0);
+    form.elements.name.value = studentInfo.name;
+    form.elements.surname.value = studentInfo.surname;
+    form.elements.age.value = studentInfo.age;
+    form.elements.phone.value = studentInfo.phone;
+    form.elements.email.value = studentInfo.email;
+    form.elements.level.value = studentInfo.level;
+    form.elements.gr.value = +studentInfo.group;
+    form.elements.languages.elements = [...form.elements.languages.elements].filter(input => studentInfo.languages.includes(input.value)).forEach(input => (input.checked = true));
+    form.elements.submit.textContent = 'Save Changes';
+  });
 
   div.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
   divStudentList.prepend(div);
@@ -174,7 +185,7 @@ form.addEventListener('submit', event => {
   const emailInput = formEl.email;
   const level = formEl.level.value;
   const group = formEl.gr.value;
-  const fieldsetEl = formEl[21].elements;
+  const fieldsetEl = form.elements.languages.elements;
   const languagesArray = [...fieldsetEl].filter(language => language.checked).map(language => language.value);
 
   const requiredInputs = {
@@ -216,7 +227,7 @@ const studentData = [
     email: 'mykolas@gmail.com',
     level: 1,
     group: 1,
-    languages: ['Python', 'Javascript', 'C#', 'Java'],
+    languages: ['Python', 'JavaScript', 'C#', 'Java'],
   },
   {
     name: 'Mykolas',
@@ -226,7 +237,7 @@ const studentData = [
     email: 'mykolas@gmail.com',
     level: 1,
     group: 1,
-    languages: ['Python', 'Javascript', 'C#', 'Java'],
+    languages: ['Python', 'JavaScript', 'C#', 'Java'],
   },
   {
     name: 'Mykolas',
@@ -236,7 +247,7 @@ const studentData = [
     email: 'mykolas@gmail.com',
     level: 1,
     group: 1,
-    languages: ['Python', 'Javascript', 'C#', 'Java'],
+    languages: ['Python', 'JavaScript', 'C#', 'Java'],
   },
   {
     name: 'Mykolas',
@@ -246,7 +257,7 @@ const studentData = [
     email: 'mykolas@gmail.com',
     level: 1,
     group: 1,
-    languages: ['Python', 'Javascript', 'C#', 'Java'],
+    languages: ['Python', 'JavaScript', 'C#', 'Java'],
   },
   {
     name: 'Mykolas',
@@ -255,8 +266,8 @@ const studentData = [
     phone: '860000000',
     email: 'mykolas@gmail.com',
     level: 1,
-    group: 1,
-    languages: ['Python', 'Javascript', 'C#', 'Java'],
+    group: 5,
+    languages: ['Python', 'JavaScript', 'C#', 'Java'],
   },
 ];
 

@@ -154,8 +154,8 @@ function addData(studentData, submit = true) {
     isHiddenData = !isHiddenData;
   });
 
-  deleteBtn.addEventListener('click', e => {
-    e.target.parentElement.remove();
+  deleteBtn.addEventListener('click', event => {
+    event.target.parentElement.remove();
     displayAlertBox(`Studentas ${studentData.name} ${studentData.surname} sėkmingai ištrintas.`, 3000);
   });
 

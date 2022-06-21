@@ -317,7 +317,7 @@ searchForm.addEventListener('submit', event => {
   event.preventDefault();
   const form = event.target;
   const option = form.elements.select.value;
-  const keyWord = form.firstElementChild.value;
+  const keyWord = form.firstElementChild.value.toLowerCase();
 
   filterStudents(option, keyWord).forEach(el => (el.style.display = 'block'));
 });

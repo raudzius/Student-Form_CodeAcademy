@@ -32,7 +32,7 @@ h1 {
 
 form {
   width: 42rem;
-  margin: 0 auto;
+  margin: 1rem auto;
   background-color: rgb(246, 249, 255);
   padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -49,7 +49,8 @@ label {
   margin: 0.5rem 0;
 }
 
-input {
+input,
+select {
   font: inherit;
   border: 1px solid rgb(152, 159, 184);
   padding: 0.2rem;
@@ -59,7 +60,8 @@ input {
   box-sizing: border-box;
 }
 
-input:focus {
+input:focus,
+select:focus {
   background-color: rgb(217, 227, 247);
 }
 
@@ -119,10 +121,24 @@ button:hover {
   border-color: rgb(69, 89, 129);
 }
 
+form:last-of-type {
+  background-color: rgb(174, 197, 244);
+  text-align: center;
+}
+
+form:last-of-type input {
+  margin: 1rem 0;
+}
+
+form:last-of-type button {
+  width: 30%;
+  margin: 1rem;
+}
+
 #student-list div {
   width: 42rem;
   margin: 1rem auto;
-  background-color: rgb(202, 216, 244);
+  background-color: rgb(174, 197, 244);
   padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   border-radius: 6px;

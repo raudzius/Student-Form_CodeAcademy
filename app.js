@@ -4,51 +4,51 @@ const studentData = [
     name: 'Mykolas',
     surname: 'Raudzius',
     age: '21',
-    phone: '860000000',
+    phone: '860010000',
     email: 'mykolas@gmail.com',
-    level: 1,
-    group: 1,
+    level: 6,
+    group: 2,
+    languages: ['Python', 'JavaScript', 'C#'],
+  },
+  {
+    name: 'Romanas',
+    surname: 'Venckus',
+    age: '28',
+    phone: '860009000',
+    email: 'romanas@gmail.com',
+    level: 10,
+    group: 4,
+    languages: ['C#', 'Java'],
+  },
+  {
+    name: 'Audrius',
+    surname: 'Sveikauskas',
+    age: '35',
+    phone: '860800000',
+    email: 'audrius@gmail.com',
+    level: 9,
+    group: 9,
     languages: ['Python', 'JavaScript', 'C#', 'Java'],
   },
   {
-    name: 'Mykolas',
-    surname: 'Raudzius',
-    age: '21',
-    phone: '860000000',
-    email: 'mykolas@gmail.com',
-    level: 1,
-    group: 1,
-    languages: ['Python', 'JavaScript', 'C#', 'Java'],
+    name: 'Ruta',
+    surname: 'Danilina',
+    age: '27',
+    phone: '860070000',
+    email: 'ruta@gmail.com',
+    level: 5,
+    group: 15,
+    languages: ['Python', 'JavaScript'],
   },
   {
-    name: 'Mykolas',
-    surname: 'Raudzius',
-    age: '21',
-    phone: '860000000',
+    name: 'Giedre',
+    surname: 'Klimaite',
+    age: '25',
+    phone: '864000000',
     email: 'mykolas@gmail.com',
-    level: 1,
-    group: 1,
-    languages: ['Python', 'JavaScript', 'C#', 'Java'],
-  },
-  {
-    name: 'Mykolas',
-    surname: 'Raudzius',
-    age: '21',
-    phone: '860000000',
-    email: 'mykolas@gmail.com',
-    level: 1,
-    group: 1,
-    languages: ['Python', 'JavaScript', 'C#', 'Java'],
-  },
-  {
-    name: 'Mykolas',
-    surname: 'Raudzius',
-    age: '21',
-    phone: '860000000',
-    email: 'mykolas@gmail.com',
-    level: 1,
-    group: 5,
-    languages: ['Python', 'JavaScript', 'C#', 'Java'],
+    level: 4,
+    group: 7,
+    languages: ['JavaScript'],
   },
 ];
 
@@ -129,18 +129,23 @@ function addData(studentData, submit = true) {
   const languageString = studentData.languages.length ? studentData.languages.join(', ') + '.' : '';
   const h3 = document.createElement('h3');
   h3.textContent = `${studentData.name} ${studentData.surname}`;
+  h3.setAttribute('name', 'name');
   const p1 = document.createElement('p');
   p1.textContent = 'Age: ' + studentData.age;
+  p1.setAttribute('name', 'age');
   const p2 = document.createElement('p');
   p2.textContent = 'Tel: ' + turnLettersToStars(studentData.phone);
   const p3 = document.createElement('p');
   p3.textContent = 'E-mail: ' + turnLettersToStars(studentData.email);
   const p4 = document.createElement('p');
   p4.textContent = 'Level: ' + studentData.level;
+  p4.setAttribute('name', 'level');
   const p5 = document.createElement('p');
   p5.textContent = 'Group: ' + studentData.group;
+  p5.setAttribute('name', 'group');
   const p6 = document.createElement('p');
   p6.textContent = 'Programming languages: ' + languageString;
+  p6.setAttribute('name', 'languages');
 
   // Info/Delete/Edit buttons
   const infoBtn = document.createElement('button');
@@ -297,16 +302,29 @@ form.addEventListener('submit', event => {
   formEl.submit.textContent = 'Submit';
 });
 
-// 1. Prie kiekvieno studento pridėti mygtuką, kurį paspaudus leistų redaguoti studento duomenis.
-// 2. Redaguojant studentą, submit mygtuko tekstas turėtų pasikeisti į „Save Changes".
-// 3. Pakeitus studento duomenis, turi iššokti <span> elementas, kuris informuoja apie studento duomenų redagavimą: „Studento (Vardas Pavardė) duomenys sėkmingai pakeisti". Šis span elementas dingsta po 5 sekundžių.
+function filterStudents(option, keyWord) {
+  [...studentList.children].forEach(el => (el.style.display = 'none'));
+  if (option === 'name') {
+    return [...studentList.children].filter(studentListItem => studentListItem.children[option].textContent.split(' ')[0].toLowerCase().includes(keyWord));
+  } else if (option === 'surname') {
+    return [...studentList.children].filter(studentListItem => studentListItem.children.name.textContent.split(' ')[1].toLowerCase().includes(keyWord));
+  } else {
+    return [...studentList.children].filter(studentListItem => studentListItem.children[option].textContent.toLowerCase().includes(keyWord));
+  }
+}
+const searchForm = form.nextElementSibling;
+searchForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const form = event.target;
+  const option = form.elements.select.value;
+  const keyWord = form.firstElementChild.value;
 
-// 1. Sukurti Edit mygtuką.
-// 2. Prie mygtuko pridėti event listener'į.
-// 3. Surinkti studento duomenis ir jais užpildyti formos laukelius.
-// 4. Pakeisti formos submit mygtuko tekstą.
-// 5. Išsaugoti studento HTML elementą kintamąjame.
-// 6. Submit event'o metu patikrinti ar kuriame naują studentą, ar redaguojame jau sukurtą.
-// 7. Jeigu studentas redaguojamas, šį naują (redaguotą) HTML elementą panaudoti perrašant seną studento HTML elementą (kuris išsaugotas 5 žingsnyje).
+  filterStudents(option, keyWord).forEach(el => (el.style.display = 'block'));
+});
 
-// 8. Pakeisti formos submit mygtuko tekstą į pradinį ir pakeisti iššokančio pranešimo tekstą.
+// 1. HTML faile sukurti naują form'ą. Joje pridėti šiuos input elementus: text ir submit.
+// 2. Formos submit event'o metu, gauti įvestą tekstą ir:
+// 2.1. Patikrinti ar studentų sąraše yra studentas, kurio varde arba pavardėje yra įvestas tekstas.
+// 2.2. Ekrane atvaizduoti tik tuos studentus, kurie tenkina sąlygą.
+// 3. Prie formos pridėti select elementą ir jame sukurti sąrašą (option elementus), kuriuose būtų nurodytą pagal kurią informaciją studento yra ieškoma (vardas, pavardė, grupė ir t.t., bet išskyrus telefono numerį ir elektroninį paštą).
+// 4. Patobulinti formą, kad studento būtų ieškoma ne tik pagal vardą ir pavardę, tačiau ir pagal pasirinktą atributą.

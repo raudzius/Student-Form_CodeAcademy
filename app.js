@@ -305,11 +305,21 @@ form.addEventListener('submit', event => {
 function filterStudents(option, keyWord) {
   [...studentList.children].forEach(el => (el.style.display = 'none'));
   if (option === 'name') {
-    return [...studentList.children].filter(studentListItem => studentListItem.children[option].textContent.split(' ')[0].toLowerCase().includes(keyWord));
+    return [...studentList.children].filter(studentListItem => studentListItem.children[option].textContent.split(' ')[0].toLowerCase().includes(keyWord.toLowerCase()));
   } else if (option === 'surname') {
-    return [...studentList.children].filter(studentListItem => studentListItem.children.name.textContent.split(' ')[1].toLowerCase().includes(keyWord));
-  } else {
-    return [...studentList.children].filter(studentListItem => studentListItem.children[option].textContent.toLowerCase().includes(keyWord));
+    return [...studentList.children].filter(studentListItem => studentListItem.children.name.textContent.split(' ')[1].toLowerCase().includes(keyWord.toLowerCase()));
+  } else if (option === 'age' || option === 'level' || option === 'group') {
+    return [...studentList.children].filter(studentListItem => studentListItem.children[option].textContent.split(' ')[1] === keyWord);
+  } else if (option === 'languages') {
+    return [...studentList.children].filter(
+      studentListItem =>
+        studentListItem.children[option].textContent
+          .toLowerCase()
+          .split(': ')[1]
+          .replace('.', '')
+          .split(', ')
+          .filter(el => el.includes(keyWord.toLowerCase())).length !== 0
+    );
   }
 }
 const searchForm = form.nextElementSibling;
@@ -317,7 +327,7 @@ searchForm.addEventListener('submit', event => {
   event.preventDefault();
   const form = event.target;
   const option = form.elements.select.value;
-  const keyWord = form.firstElementChild.value.toLowerCase();
+  const keyWord = form.firstElementChild.value;
 
   filterStudents(option, keyWord).forEach(el => (el.style.display = 'block'));
 });

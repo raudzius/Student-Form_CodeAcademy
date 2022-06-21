@@ -77,8 +77,8 @@ for (let i = 1; i <= 15; i++) {
 //
 
 // Global Variables
-const alertBox = document.querySelector('span.modal');
-const alertBackground = document.getElementById('backdrop');
+const modal = document.querySelector('span.modal');
+const modalBackdrop = document.getElementById('backdrop');
 const form = document.querySelector('form');
 const studentList = document.getElementById('student-list');
 const levelInput = document.getElementById('level');
@@ -87,21 +87,30 @@ const levelLabelSpan = document.getElementById('level-value');
 let editedStudent = false;
 
 // Alert
-function displayAlertBox(alertText, displayTime, alertTextColor = 'black') {
+function displaymodal(alertText, displayTime, alertTextColor = 'black') {
   const h3 = document.createElement('h3');
   h3.textContent = alertText;
   h3.style.color = alertTextColor;
 
-  alertBox.append(h3);
-  alertBox.style.display = 'block';
-  alertBackground.style.display = 'block';
+  modal.append(h3);
+  modal.style.display = 'block';
+  modalBackdrop.style.display = 'block';
 
   setTimeout(() => {
-    alertBox.style.display = 'none';
-    alertBackground.style.display = 'none';
-    alertBox.children[0].remove();
+    modal.style.display = 'none';
+    modalBackdrop.style.display = 'none';
+    modal.children[0].remove();
   }, displayTime);
 }
+
+// Dynamic Range Output
+function displayLevelNumber(labelInputValue) {
+  levelLabelSpan.textContent = labelInputValue;
+}
+
+levelInput.addEventListener('input', event => {
+  displayLevelNumber(event.target.value);
+});
 
 // Student List item
 function addData(studentData, submit = true) {
@@ -156,7 +165,7 @@ function addData(studentData, submit = true) {
 
   deleteBtn.addEventListener('click', event => {
     event.target.parentElement.remove();
-    displayAlertBox(`Studentas ${studentData.name} ${studentData.surname} sėkmingai ištrintas.`, 3000);
+    displaymodal(`Studentas ${studentData.name} ${studentData.surname} sėkmingai ištrintas.`, 3000);
   });
 
   editBtn.addEventListener('click', event => {
@@ -166,7 +175,8 @@ function addData(studentData, submit = true) {
     form.elements.age.value = studentData.age;
     form.elements.phone.value = studentData.phone;
     form.elements.email.value = studentData.email;
-    form.elements.level.value = studentData.level;
+    form.elements.level.value = +studentData.level;
+    displayLevelNumber(form.level.value);
     form.elements.gr.value = +studentData.group;
     form.elements.languages.elements = [...form.elements.languages.elements].filter(input => studentData.languages.includes(input.value)).forEach(input => (input.checked = true));
     form.elements.submit.textContent = 'Save Changes';
@@ -176,19 +186,15 @@ function addData(studentData, submit = true) {
   if (editedStudent) {
     editedStudent.innerHTML = ``;
     editedStudent.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
-    displayAlertBox(`Studento ${studentData.name} ${studentData.surname} duomenys sėkmingai pakeisti`, 3000, 'green');
+    editedStudent = false;
+    displaymodal(`Studento ${studentData.name} ${studentData.surname} duomenys sėkmingai pakeisti`, 3000, 'green');
     return;
   }
   //
   div.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
   studentList.prepend(div);
-  if (submit) displayAlertBox(`Sukurtas Studentas: ${studentData.name} ${studentData.surname}`, 3000);
+  if (submit) displaymodal(`Sukurtas Studentas: ${studentData.name} ${studentData.surname}`, 3000);
 }
-
-// Dynamic Range Output
-levelInput.addEventListener('input', event => {
-  levelLabelSpan.textContent = event.target.value;
-});
 
 // Render Backend Data
 function renderData(data) {
@@ -244,7 +250,7 @@ function markInvalidInputs(requiredInputs) {
   }
 
   if (!isValid) {
-    displayAlertBox('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
+    displaymodal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
   }
   return isValid;
 }

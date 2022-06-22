@@ -62,12 +62,16 @@ for (let i = 1; i <= 15; i++) {
   label.setAttribute('for', `${i}gr`);
 
   const input = document.createElement('input');
+  input.addEventListener('input', event => {
+    const input = event.target;
+    localStorage.setItem('group', input.value);
+  });
   const attributes = { type: 'radio', name: `gr`, id: `${i}gr`, value: `${i}` };
   for (const key in attributes) {
     input.setAttribute(key, attributes[key]);
   }
 
-  if (i === 1) {
+  if (i === +localStorage.getItem('group') || i === 1) {
     input.checked = true;
   }
 
@@ -174,6 +178,7 @@ function addData(studentData, submit = true) {
   });
 
   editBtn.addEventListener('click', event => {
+    form.reset();
     window.scrollTo(0, 0);
     form.elements.name.value = studentData.name;
     form.elements.surname.value = studentData.surname;
@@ -294,14 +299,16 @@ form.addEventListener('submit', event => {
     group: formEl.gr.value,
     languages: [...programmingLanguagesArray],
   };
+
   addData(studentData);
 
   form.reset();
   formEl.gr[0].checked = true;
   levelLabelSpan.textContent = 1;
   formEl.submit.textContent = 'Submit';
+  localStorage.clear();
 });
-
+// Filter
 function filterStudents(option, keyWord) {
   [...studentList.children].forEach(el => (el.style.display = 'none'));
   if (option === 'name') {
@@ -330,6 +337,69 @@ searchForm.addEventListener('submit', event => {
   const keyWord = form.firstElementChild.value;
 
   filterStudents(option, keyWord).forEach(el => (el.style.display = 'block'));
+});
+
+const nameInput = document.getElementById('name');
+nameInput.value = localStorage.getItem('name');
+nameInput.addEventListener('input', event => {
+  const input = event.target;
+  localStorage.setItem('name', input.value);
+});
+const surnameInput = document.getElementById('surname');
+surnameInput.value = localStorage.getItem('surname');
+surnameInput.addEventListener('input', event => {
+  const input = event.target;
+  localStorage.setItem('surname', input.value);
+});
+const ageInput = document.getElementById('age');
+ageInput.value = localStorage.getItem('age');
+ageInput.addEventListener('input', event => {
+  const input = event.target;
+  localStorage.setItem('age', input.value);
+});
+const phoneInput = document.getElementById('phone');
+phoneInput.value = localStorage.getItem('phone');
+phoneInput.addEventListener('input', event => {
+  const input = event.target;
+  localStorage.setItem('phone', input.value);
+});
+const emailInput = document.getElementById('email');
+emailInput.value = localStorage.getItem('email');
+emailInput.addEventListener('input', event => {
+  const input = event.target;
+  localStorage.setItem('email', input.value);
+});
+
+levelInput.value = localStorage.getItem('level');
+levelLabelSpan.textContent = localStorage.getItem('level');
+levelInput.addEventListener('input', event => {
+  const input = event.target;
+  localStorage.setItem('level', input.value);
+});
+
+const languagesCheckboxes = document.querySelectorAll('input[type=checkbox]');
+let languageArray = [];
+
+if (localStorage.getItem('languageArray')) {
+  languagesCheckboxes.forEach(checkbox => {
+    if (JSON.parse(localStorage.getItem('languageArray')).includes(checkbox.value)) {
+      checkbox.checked = true;
+    }
+  });
+  languageArray = JSON.parse(localStorage.getItem('languageArray'));
+  console.log(languageArray);
+}
+languagesCheckboxes.forEach(checkbox => {
+  checkbox.addEventListener('input', event => {
+    const input = event.target;
+    if (input.checked) {
+      languageArray.push(input.value);
+    } else {
+      const uncheckedValue = languageArray.indexOf(input.value);
+      languageArray.splice(uncheckedValue, 1);
+    }
+    localStorage.setItem('languageArray', JSON.stringify(languageArray));
+  });
 });
 
 // 1. HTML faile sukurti naują form'ą. Joje pridėti šiuos input elementus: text ir submit.

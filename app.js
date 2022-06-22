@@ -370,8 +370,10 @@ emailInput.addEventListener('input', event => {
   localStorage.setItem('email', input.value);
 });
 
-levelInput.value = localStorage.getItem('level');
-levelLabelSpan.textContent = localStorage.getItem('level');
+if ((localStorage.getItem('level'))) {
+  levelInput.value = localStorage.getItem('level');
+  levelLabelSpan.textContent = localStorage.getItem('level');
+}
 levelInput.addEventListener('input', event => {
   const input = event.target;
   localStorage.setItem('level', input.value);

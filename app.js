@@ -92,7 +92,7 @@ let editedStudent = false;
 let editedStudentId = false;
 
 // Alert
-function displaymodal(alertText, displayTime, alertTextColor = 'black') {
+function displayModal(alertText, displayTime, alertTextColor = 'black') {
   const h3 = document.createElement('h3');
   h3.textContent = alertText;
   h3.style.color = alertTextColor;
@@ -120,10 +120,27 @@ levelInput.addEventListener('input', (event) => {
 // Student List item
 function addData(studentData, submit = true, id = Math.random()) {
   const div = document.createElement('div');
-  div.className = 'student-item';
-  const allStudents = JSON.parse(localStorage.getItem('studentData'));
+  const locallyStoredStudents = JSON.parse(localStorage.getItem('studentData'));
+  const languageString = studentData.languages.length;
+  const h3 = document.createElement('h3');
+  const p1 = document.createElement('p');
+  const p2 = document.createElement('p');
+  const p3 = document.createElement('p');
+  const p4 = document.createElement('p');
+  const p5 = document.createElement('p');
+  const p6 = document.createElement('p');
+  const infoBtn = document.createElement('button');
+  const deleteBtn = document.createElement('button');
+  const editBtn = document.createElement('button');
 
-  let isHiddenData = true;
+  let hidePersonalInfo = true;
+
+  div.className = 'student-item';
+  h3.setAttribute('name', 'name');
+  p1.setAttribute('name', 'age');
+  p4.setAttribute('name', 'level');
+  p5.setAttribute('name', 'group');
+  p6.setAttribute('name', 'languages');
 
   function turnLettersToStars(string) {
     let stars = '';
@@ -132,59 +149,43 @@ function addData(studentData, submit = true, id = Math.random()) {
     }
     return stars;
   }
-  const languageString = studentData.languages.length
-    ? studentData.languages.join(', ') + '.'
-    : '';
-  const h3 = document.createElement('h3');
-  h3.textContent = `${studentData.name} ${studentData.surname}`;
-  h3.setAttribute('name', 'name');
-  const p1 = document.createElement('p');
-  p1.textContent = 'Age: ' + studentData.age;
-  p1.setAttribute('name', 'age');
-  const p2 = document.createElement('p');
-  p2.textContent = 'Tel: ' + turnLettersToStars(studentData.phone);
-  const p3 = document.createElement('p');
-  p3.textContent = 'E-mail: ' + turnLettersToStars(studentData.email);
-  const p4 = document.createElement('p');
-  p4.textContent = 'Level: ' + studentData.level;
-  p4.setAttribute('name', 'level');
-  const p5 = document.createElement('p');
-  p5.textContent = 'Group: ' + studentData.group;
-  p5.setAttribute('name', 'group');
-  const p6 = document.createElement('p');
-  p6.textContent = 'Programming languages: ' + languageString;
-  p6.setAttribute('name', 'languages');
+  languageString ? studentData.languages.join(', ') + '.' : '';
 
-  // Info/Delete/Edit buttons
-  const infoBtn = document.createElement('button');
+  h3.textContent = `${studentData.name} ${studentData.surname}`;
+  p1.textContent = 'Age: ' + studentData.age;
+  p2.textContent = 'Tel: ' + turnLettersToStars(studentData.phone);
+  p3.textContent = 'E-mail: ' + turnLettersToStars(studentData.email);
+  p4.textContent = 'Level: ' + studentData.level;
+  p5.textContent = 'Group: ' + studentData.group;
+  p6.textContent = 'Programming languages: ' + languageString;
   infoBtn.textContent = 'Rodyti asmens duomenis';
-  const deleteBtn = document.createElement('button');
   deleteBtn.textContent = 'Ištrinti studentą';
-  const editBtn = document.createElement('button');
   editBtn.textContent = 'Redaguoti studentą';
 
   infoBtn.addEventListener('click', () => {
-    if (isHiddenData) {
-      p2.textContent = 'Tel: ' + studentData.phone;
-      p3.textContent = 'E-mail: ' + studentData.email;
-      infoBtn.textContent = 'Slepti asmens duomenis';
-    } else {
+    hidePersonalInfo = !hidePersonalInfo;
+    if (hidePersonalInfo) {
       p2.textContent = 'Tel: ' + turnLettersToStars(studentData.phone);
       p3.textContent = 'E-mail: ' + turnLettersToStars(studentData.email);
       infoBtn.textContent = 'Rodyti asmens duomenis';
+    } else if (!hidePersonalInfo) {
+      p2.textContent = 'Tel: ' + studentData.phone;
+      p3.textContent = 'E-mail: ' + studentData.email;
+      infoBtn.textContent = 'Slepti asmens duomenis';
     }
-    isHiddenData = !isHiddenData;
   });
 
   deleteBtn.addEventListener('click', (event) => {
     event.target.parentElement.remove();
-    displaymodal(
+    const filteredStudents = locallyStoredStudents.filter(
+      (element) => element.id !== id
+    );
+    localStorage.setItem('studentData', JSON.stringify(filteredStudents));
+
+    displayModal(
       `Studentas ${studentData.name} ${studentData.surname} sėkmingai ištrintas.`,
       3000
     );
-
-    const filteredStudents = allStudents.filter((element) => element.id !== id);
-    localStorage.setItem('studentData', JSON.stringify(filteredStudents));
   });
 
   editBtn.addEventListener('click', (event) => {
@@ -220,8 +221,8 @@ function addData(studentData, submit = true, id = Math.random()) {
       deleteBtn,
       editBtn
     );
-    
-    const editedStudents = allStudents.map((student) => {
+
+    const editedStudents = locallyStoredStudents.map((student) => {
       if (student.id === +editedStudentId) {
         student.name = studentData.name;
         student.surname = studentData.surname;
@@ -235,9 +236,9 @@ function addData(studentData, submit = true, id = Math.random()) {
       return student;
     });
     localStorage.setItem('studentData', JSON.stringify(editedStudents));
-    
+
     editedStudent = false;
-    displaymodal(
+    displayModal(
       `Studento ${studentData.name} ${studentData.surname} duomenys sėkmingai pakeisti`,
       3000,
       'green'
@@ -249,7 +250,7 @@ function addData(studentData, submit = true, id = Math.random()) {
   div.setAttribute('id', id);
   studentList.prepend(div);
   if (submit) {
-    displaymodal(
+    displayModal(
       `Sukurtas Studentas: ${studentData.name} ${studentData.surname}`,
       3000
     );
@@ -265,8 +266,8 @@ function addData(studentData, submit = true, id = Math.random()) {
       languages: studentData.languages,
       id: id,
     };
-    allStudents.push(newStudent);
-    localStorage.setItem('studentData', JSON.stringify(allStudents));
+    locallyStoredStudents.push(newStudent);
+    localStorage.setItem('studentData', JSON.stringify(locallyStoredStudents));
   }
 }
 
@@ -353,7 +354,7 @@ function markInvalidInputs(requiredInputs) {
   }
 
   if (!isValid) {
-    displaymodal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
+    displayModal('Ne visi laukeliai yra uzpildyti!', 3000, 'red');
   }
   return isValid;
 }
@@ -405,6 +406,7 @@ form.addEventListener('submit', (event) => {
     localStorage.removeItem(key);
   }
 });
+
 // Filter
 function filterStudents(option, keyWord) {
   [...studentList.children].forEach((el) => (el.style.display = 'none'));
@@ -450,17 +452,27 @@ searchForm.addEventListener('submit', (event) => {
   filterStudents(option, keyWord).forEach((el) => (el.style.display = 'block'));
 });
 
+// local store inputs
+
 const nameInput = document.getElementById('name');
 const surnameInput = document.getElementById('surname');
 const ageInput = document.getElementById('age');
 const phoneInput = document.getElementById('phone');
 const emailInput = document.getElementById('email');
+const localStoredLevel = localStorage.getItem('level');
+const languagesCheckboxes = document.querySelectorAll('input[type=checkbox]');
+
+let languageArray = [];
 
 nameInput.value = localStorage.getItem('name');
 surnameInput.value = localStorage.getItem('surname');
 ageInput.value = localStorage.getItem('age');
 phoneInput.value = localStorage.getItem('phone');
 emailInput.value = localStorage.getItem('email');
+if (localStoredLevel) {
+  levelInput.value = localStoredLevel;
+  levelLabelSpan.textContent = localStoredLevel;
+}
 
 nameInput.addEventListener('input', (event) => {
   localStorage.setItem('name', event.target.value);
@@ -477,18 +489,9 @@ phoneInput.addEventListener('input', (event) => {
 emailInput.addEventListener('input', (event) => {
   localStorage.setItem('email', event.target.value);
 });
-
-if (localStorage.getItem('level')) {
-  levelInput.value = localStorage.getItem('level');
-  levelLabelSpan.textContent = localStorage.getItem('level');
-}
 levelInput.addEventListener('input', (event) => {
-  const input = event.target;
-  localStorage.setItem('level', input.value);
+  localStorage.setItem('level', event.target.value);
 });
-
-const languagesCheckboxes = document.querySelectorAll('input[type=checkbox]');
-let languageArray = [];
 
 if (localStorage.getItem('languageArray')) {
   languagesCheckboxes.forEach((checkbox) => {

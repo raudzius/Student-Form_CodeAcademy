@@ -62,7 +62,7 @@ for (let i = 1; i <= 15; i++) {
   label.setAttribute('for', `${i}gr`);
 
   const input = document.createElement('input');
-  input.addEventListener('input', event => {
+  input.addEventListener('input', (event) => {
     const input = event.target;
     localStorage.setItem('group', input.value);
   });
@@ -89,6 +89,7 @@ const levelInput = document.getElementById('level');
 const levelLabelSpan = document.getElementById('level-value');
 
 let editedStudent = false;
+let editedStudentId = false;
 
 // Alert
 function displaymodal(alertText, displayTime, alertTextColor = 'black') {
@@ -112,14 +113,15 @@ function displayLevelNumber(labelInputValue) {
   levelLabelSpan.textContent = labelInputValue;
 }
 
-levelInput.addEventListener('input', event => {
+levelInput.addEventListener('input', (event) => {
   displayLevelNumber(event.target.value);
 });
 
 // Student List item
-function addData(studentData, submit = true) {
+function addData(studentData, submit = true, id = Math.random()) {
   const div = document.createElement('div');
   div.className = 'student-item';
+  const allStudents = JSON.parse(localStorage.getItem('studentData'));
 
   let isHiddenData = true;
 
@@ -130,7 +132,9 @@ function addData(studentData, submit = true) {
     }
     return stars;
   }
-  const languageString = studentData.languages.length ? studentData.languages.join(', ') + '.' : '';
+  const languageString = studentData.languages.length
+    ? studentData.languages.join(', ') + '.'
+    : '';
   const h3 = document.createElement('h3');
   h3.textContent = `${studentData.name} ${studentData.surname}`;
   h3.setAttribute('name', 'name');
@@ -172,12 +176,18 @@ function addData(studentData, submit = true) {
     isHiddenData = !isHiddenData;
   });
 
-  deleteBtn.addEventListener('click', event => {
+  deleteBtn.addEventListener('click', (event) => {
     event.target.parentElement.remove();
-    displaymodal(`Studentas ${studentData.name} ${studentData.surname} sėkmingai ištrintas.`, 3000);
+    displaymodal(
+      `Studentas ${studentData.name} ${studentData.surname} sėkmingai ištrintas.`,
+      3000
+    );
+
+    const filteredStudents = allStudents.filter((element) => element.id !== id);
+    localStorage.setItem('studentData', JSON.stringify(filteredStudents));
   });
 
-  editBtn.addEventListener('click', event => {
+  editBtn.addEventListener('click', (event) => {
     form.reset();
     window.scrollTo(0, 0);
     form.elements.name.value = studentData.name;
@@ -188,42 +198,104 @@ function addData(studentData, submit = true) {
     form.elements.level.value = +studentData.level;
     displayLevelNumber(form.level.value);
     form.elements.gr.value = +studentData.group;
-    form.elements.languages.elements = [...form.elements.languages.elements].filter(input => studentData.languages.includes(input.value)).forEach(input => (input.checked = true));
+    form.elements.languages.elements = [...form.elements.languages.elements]
+      .filter((input) => studentData.languages.includes(input.value))
+      .forEach((input) => (input.checked = true));
     form.elements.submit.textContent = 'Save Changes';
 
     editedStudent = event.target.parentElement;
+    editedStudentId = editedStudent.id;
   });
   if (editedStudent) {
     editedStudent.innerHTML = ``;
-    editedStudent.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
+    editedStudent.append(
+      h3,
+      p1,
+      p2,
+      p3,
+      p4,
+      p5,
+      p6,
+      infoBtn,
+      deleteBtn,
+      editBtn
+    );
+    
+    const editedStudents = allStudents.map((student) => {
+      if (student.id === +editedStudentId) {
+        student.name = studentData.name;
+        student.surname = studentData.surname;
+        student.age = studentData.age;
+        student.phone = studentData.phone;
+        student.email = studentData.email;
+        student.level = studentData.level;
+        student.group = +studentData.group;
+        student.languages = studentData.languages;
+      }
+      return student;
+    });
+    localStorage.setItem('studentData', JSON.stringify(editedStudents));
+    
     editedStudent = false;
-    displaymodal(`Studento ${studentData.name} ${studentData.surname} duomenys sėkmingai pakeisti`, 3000, 'green');
+    displaymodal(
+      `Studento ${studentData.name} ${studentData.surname} duomenys sėkmingai pakeisti`,
+      3000,
+      'green'
+    );
     return;
   }
   //
   div.append(h3, p1, p2, p3, p4, p5, p6, infoBtn, deleteBtn, editBtn);
+  div.setAttribute('id', id);
   studentList.prepend(div);
-  if (submit) displaymodal(`Sukurtas Studentas: ${studentData.name} ${studentData.surname}`, 3000);
+  if (submit) {
+    displaymodal(
+      `Sukurtas Studentas: ${studentData.name} ${studentData.surname}`,
+      3000
+    );
+
+    const newStudent = {
+      name: studentData.name,
+      surname: studentData.surname,
+      age: studentData.age,
+      phone: studentData.phone,
+      email: studentData.email,
+      level: studentData.level,
+      group: studentData.group,
+      languages: studentData.languages,
+      id: id,
+    };
+    allStudents.push(newStudent);
+    localStorage.setItem('studentData', JSON.stringify(allStudents));
+  }
 }
 
 // Render Backend Data
+if (!localStorage.getItem('studentData')) {
+  studentData.forEach((student) => (student.id = Math.random()));
+  localStorage.setItem('studentData', JSON.stringify(studentData));
+}
 function renderData(data) {
   for (let i = 0; i < data.length; i++) {
-    addData(data[i], false);
+    addData(data[i], false, data[i].id);
   }
 }
-renderData(studentData);
+renderData(JSON.parse(localStorage.getItem('studentData')));
 
 // Input validation
 function markInvalidInputs(requiredInputs) {
   const requiredInputsArray = Object.values(requiredInputs);
-  const emptyInputArray = requiredInputsArray.filter(input => !input.value.trim().length);
+  const emptyInputArray = requiredInputsArray.filter(
+    (input) => !input.value.trim().length
+  );
   const warningSpans = document.querySelectorAll('.warning');
 
   let isValid = true;
 
-  requiredInputsArray.forEach(input => (input.style.borderColor = 'rgb(152, 159, 184)'));
-  warningSpans.forEach(span => span.remove());
+  requiredInputsArray.forEach(
+    (input) => (input.style.borderColor = 'rgb(152, 159, 184)')
+  );
+  warningSpans.forEach((span) => span.remove());
 
   function inputWarning(input, warningText) {
     const span = document.createElement('span');
@@ -236,27 +308,48 @@ function markInvalidInputs(requiredInputs) {
   }
 
   if (emptyInputArray.length) {
-    emptyInputArray.forEach(input => {
+    emptyInputArray.forEach((input) => {
       inputWarning(input, 'Sis laukelis yra privalomas');
     });
   }
 
   if (requiredInputs.nameInput.value.length < 3) {
-    inputWarning(requiredInputs.nameInput, 'Vardas privalo būti bent 3 simbolių ilgumo');
+    inputWarning(
+      requiredInputs.nameInput,
+      'Vardas privalo būti bent 3 simbolių ilgumo'
+    );
   }
   if (requiredInputs.surnameInput.value.length < 3) {
-    inputWarning(requiredInputs.surnameInput, 'Pavardė privalo būti bent 3 simbolių ilgumo');
+    inputWarning(
+      requiredInputs.surnameInput,
+      'Pavardė privalo būti bent 3 simbolių ilgumo'
+    );
   }
   if (requiredInputs.ageInput.value < 0) {
-    inputWarning(requiredInputs.ageInput, 'Amžius privalo būti teigiamas skaičius');
+    inputWarning(
+      requiredInputs.ageInput,
+      'Amžius privalo būti teigiamas skaičius'
+    );
   } else if (requiredInputs.ageInput.value > 120) {
     inputWarning(requiredInputs.ageInput, 'Įvestas amžius yra per didelis');
   }
-  if (requiredInputs.phoneInput.value.length < 8 || requiredInputs.phoneInput.value.length > 12) {
-    inputWarning(requiredInputs.phoneInput, 'Įvestas telefono numeris yra neteisingas');
+  if (
+    requiredInputs.phoneInput.value.length < 8 ||
+    requiredInputs.phoneInput.value.length > 12
+  ) {
+    inputWarning(
+      requiredInputs.phoneInput,
+      'Įvestas telefono numeris yra neteisingas'
+    );
   }
-  if (requiredInputs.emailInput.value.length < 5 || !requiredInputs.emailInput.value.includes('@')) {
-    inputWarning(requiredInputs.emailInput, 'Įvestas elektroninis paštas yra neteisingas');
+  if (
+    requiredInputs.emailInput.value.length < 5 ||
+    !requiredInputs.emailInput.value.includes('@')
+  ) {
+    inputWarning(
+      requiredInputs.emailInput,
+      'Įvestas elektroninis paštas yra neteisingas'
+    );
   }
 
   if (!isValid) {
@@ -266,7 +359,7 @@ function markInvalidInputs(requiredInputs) {
 }
 
 // Form submit
-form.addEventListener('submit', event => {
+form.addEventListener('submit', (event) => {
   event.preventDefault();
   const form = event.target;
   const formEl = form.elements;
@@ -275,7 +368,9 @@ form.addEventListener('submit', event => {
   const ageInput = formEl.age;
   const phoneInput = formEl.phone;
   const emailInput = formEl.email;
-  const programmingLanguagesArray = [...formEl.languages.elements].filter(language => language.checked).map(language => language.value);
+  const programmingLanguagesArray = [...formEl.languages.elements]
+    .filter((language) => language.checked)
+    .map((language) => language.value);
 
   const requiredInputs = {
     nameInput: nameInput,
@@ -306,75 +401,88 @@ form.addEventListener('submit', event => {
   formEl.gr[0].checked = true;
   levelLabelSpan.textContent = 1;
   formEl.submit.textContent = 'Submit';
-  localStorage.clear();
+  for (key in studentData) {
+    localStorage.removeItem(key);
+  }
 });
 // Filter
 function filterStudents(option, keyWord) {
-  [...studentList.children].forEach(el => (el.style.display = 'none'));
+  [...studentList.children].forEach((el) => (el.style.display = 'none'));
   if (option === 'name') {
-    return [...studentList.children].filter(studentListItem => studentListItem.children[option].textContent.split(' ')[0].toLowerCase().includes(keyWord.toLowerCase()));
+    return [...studentList.children].filter((studentListItem) =>
+      studentListItem.children[option].textContent
+        .split(' ')[0]
+        .toLowerCase()
+        .includes(keyWord.toLowerCase())
+    );
   } else if (option === 'surname') {
-    return [...studentList.children].filter(studentListItem => studentListItem.children.name.textContent.split(' ')[1].toLowerCase().includes(keyWord.toLowerCase()));
+    return [...studentList.children].filter((studentListItem) =>
+      studentListItem.children.name.textContent
+        .split(' ')[1]
+        .toLowerCase()
+        .includes(keyWord.toLowerCase())
+    );
   } else if (option === 'age' || option === 'level' || option === 'group') {
-    return [...studentList.children].filter(studentListItem => studentListItem.children[option].textContent.split(' ')[1] === keyWord);
+    return [...studentList.children].filter(
+      (studentListItem) =>
+        studentListItem.children[option].textContent.split(' ')[1] === keyWord
+    );
   } else if (option === 'languages') {
     return [...studentList.children].filter(
-      studentListItem =>
+      (studentListItem) =>
         studentListItem.children[option].textContent
           .toLowerCase()
           .split(': ')[1]
           .replace('.', '')
           .split(', ')
-          .filter(el => el.includes(keyWord.toLowerCase())).length !== 0
+          .filter((el) => el.includes(keyWord.toLowerCase())).length !== 0
     );
   }
 }
+
 const searchForm = form.nextElementSibling;
-searchForm.addEventListener('submit', event => {
+searchForm.addEventListener('submit', (event) => {
   event.preventDefault();
   const form = event.target;
   const option = form.elements.select.value;
   const keyWord = form.firstElementChild.value;
 
-  filterStudents(option, keyWord).forEach(el => (el.style.display = 'block'));
+  filterStudents(option, keyWord).forEach((el) => (el.style.display = 'block'));
 });
 
 const nameInput = document.getElementById('name');
-nameInput.value = localStorage.getItem('name');
-nameInput.addEventListener('input', event => {
-  const input = event.target;
-  localStorage.setItem('name', input.value);
-});
 const surnameInput = document.getElementById('surname');
-surnameInput.value = localStorage.getItem('surname');
-surnameInput.addEventListener('input', event => {
-  const input = event.target;
-  localStorage.setItem('surname', input.value);
-});
 const ageInput = document.getElementById('age');
-ageInput.value = localStorage.getItem('age');
-ageInput.addEventListener('input', event => {
-  const input = event.target;
-  localStorage.setItem('age', input.value);
-});
 const phoneInput = document.getElementById('phone');
-phoneInput.value = localStorage.getItem('phone');
-phoneInput.addEventListener('input', event => {
-  const input = event.target;
-  localStorage.setItem('phone', input.value);
-});
 const emailInput = document.getElementById('email');
+
+nameInput.value = localStorage.getItem('name');
+surnameInput.value = localStorage.getItem('surname');
+ageInput.value = localStorage.getItem('age');
+phoneInput.value = localStorage.getItem('phone');
 emailInput.value = localStorage.getItem('email');
-emailInput.addEventListener('input', event => {
-  const input = event.target;
-  localStorage.setItem('email', input.value);
+
+nameInput.addEventListener('input', (event) => {
+  localStorage.setItem('name', event.target.value);
+});
+surnameInput.addEventListener('input', (event) => {
+  localStorage.setItem('surname', event.target.value);
+});
+ageInput.addEventListener('input', (event) => {
+  localStorage.setItem('age', event.target.value);
+});
+phoneInput.addEventListener('input', (event) => {
+  localStorage.setItem('phone', event.target.value);
+});
+emailInput.addEventListener('input', (event) => {
+  localStorage.setItem('email', event.target.value);
 });
 
-if ((localStorage.getItem('level'))) {
+if (localStorage.getItem('level')) {
   levelInput.value = localStorage.getItem('level');
   levelLabelSpan.textContent = localStorage.getItem('level');
 }
-levelInput.addEventListener('input', event => {
+levelInput.addEventListener('input', (event) => {
   const input = event.target;
   localStorage.setItem('level', input.value);
 });
@@ -383,16 +491,17 @@ const languagesCheckboxes = document.querySelectorAll('input[type=checkbox]');
 let languageArray = [];
 
 if (localStorage.getItem('languageArray')) {
-  languagesCheckboxes.forEach(checkbox => {
-    if (JSON.parse(localStorage.getItem('languageArray')).includes(checkbox.value)) {
+  languagesCheckboxes.forEach((checkbox) => {
+    if (
+      JSON.parse(localStorage.getItem('languageArray')).includes(checkbox.value)
+    ) {
       checkbox.checked = true;
     }
   });
   languageArray = JSON.parse(localStorage.getItem('languageArray'));
-  console.log(languageArray);
 }
-languagesCheckboxes.forEach(checkbox => {
-  checkbox.addEventListener('input', event => {
+languagesCheckboxes.forEach((checkbox) => {
+  checkbox.addEventListener('input', (event) => {
     const input = event.target;
     if (input.checked) {
       languageArray.push(input.value);
@@ -403,10 +512,3 @@ languagesCheckboxes.forEach(checkbox => {
     localStorage.setItem('languageArray', JSON.stringify(languageArray));
   });
 });
-
-// 1. HTML faile sukurti naują form'ą. Joje pridėti šiuos input elementus: text ir submit.
-// 2. Formos submit event'o metu, gauti įvestą tekstą ir:
-// 2.1. Patikrinti ar studentų sąraše yra studentas, kurio varde arba pavardėje yra įvestas tekstas.
-// 2.2. Ekrane atvaizduoti tik tuos studentus, kurie tenkina sąlygą.
-// 3. Prie formos pridėti select elementą ir jame sukurti sąrašą (option elementus), kuriuose būtų nurodytą pagal kurią informaciją studento yra ieškoma (vardas, pavardė, grupė ir t.t., bet išskyrus telefono numerį ir elektroninį paštą).
-// 4. Patobulinti formą, kad studento būtų ieškoma ne tik pagal vardą ir pavardę, tačiau ir pagal pasirinktą atributą.
